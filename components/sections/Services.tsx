@@ -1,8 +1,14 @@
+"use client";
+
+import { useState } from "react";
 import RevealOnScroll from "@/components/ui/RevealOnScroll";
 import SectionLabel from "@/components/ui/SectionLabel";
+import AccordionItem from "@/components/ui/Accordion";
 import type { ServicesContent } from "@/lib/cms/types";
 
 export default function Services({ content }: { content: ServicesContent }) {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
   return (
     <section
       id="services"
@@ -19,7 +25,24 @@ export default function Services({ content }: { content: ServicesContent }) {
           </h2>
         </RevealOnScroll>
 
-        <div className="mt-16 grid grid-cols-1 gap-px border-y border-line bg-line sm:grid-cols-2 lg:mt-20 lg:grid-cols-3">
+        {/* Mobile/tablette (< lg) : liste compacte, description révélée au tap
+            plutôt que six cartes pleine hauteur empilées. */}
+        <RevealOnScroll delay={0.1} className="mt-12 border-t border-line lg:hidden">
+          {content.items.map((service, i) => (
+            <AccordionItem
+              key={service.index}
+              index={service.index}
+              title={service.title}
+              open={openIndex === i}
+              onToggle={() => setOpenIndex((prev) => (prev === i ? null : i))}
+            >
+              {service.description}
+            </AccordionItem>
+          ))}
+        </RevealOnScroll>
+
+        {/* Desktop (>= lg) : composition grille existante, inchangée. */}
+        <div className="mt-16 hidden grid-cols-1 gap-px border-y border-line bg-line lg:mt-20 lg:grid lg:grid-cols-3">
           {content.items.map((service, i) => (
             <RevealOnScroll key={service.index} delay={(i % 3) * 0.06} className="h-full">
               <article className="group relative h-full bg-ink px-6 py-10 transition-colors duration-500 hover:bg-paper/[0.03] sm:px-8">

@@ -42,7 +42,7 @@ export default function Hero({ content }: { content: HeroContent }) {
       id="accueil"
       ref={sectionRef}
       onMouseMove={handleMouseMove}
-      className="bg-noise relative flex min-h-[100dvh] flex-col overflow-hidden bg-ink pt-[72px] lg:pt-20"
+      className="bg-noise relative flex min-h-0 flex-col overflow-hidden bg-ink pt-[72px] lg:min-h-[100dvh] lg:pt-20"
     >
       <motion.div
         aria-hidden="true"
@@ -69,19 +69,20 @@ export default function Hero({ content }: { content: HeroContent }) {
         className="pointer-events-none absolute right-[8%] top-[16%] hidden h-px w-56 bg-gradient-to-r from-transparent via-line-strong to-transparent lg:block"
       />
 
-      <div className="relative z-10 flex items-center justify-between px-6 pt-8 font-display text-[10px] uppercase tracking-[0.3em] text-mist sm:px-8 lg:px-12">
+      <div className="relative z-10 flex items-center justify-between px-6 pt-6 font-display text-[10px] uppercase tracking-[0.3em] text-mist sm:px-8 sm:pt-8 lg:px-12">
         <span>EVORYA® — DIGITAL EXPERIENCE STUDIO</span>
         <span className="hidden sm:inline">
           EST. {SITE.founded} / {SITE.location.toUpperCase()}
         </span>
       </div>
 
-      <div className="relative z-10 flex flex-1 flex-col justify-center px-6 sm:px-8 lg:px-12">
+      <div className="relative z-10 flex flex-col px-6 pt-10 sm:px-8 sm:pt-12 lg:flex-1 lg:justify-center lg:px-12 lg:pt-0">
         <div className="mx-auto w-full max-w-[1440px]">
-          <h1 className="max-w-5xl text-[2.6rem] leading-[1.04] font-medium tracking-tight text-paper sm:text-[3.4rem] md:text-[4.4rem] lg:text-[5.6rem] xl:text-[6.4rem]">
+          <h1 className="max-w-5xl text-[2.3rem] leading-[1.08] font-medium tracking-tight text-paper sm:text-[3.4rem] sm:leading-[1.04] md:text-[4.4rem] lg:text-[5.6rem] xl:text-[6.4rem]">
             {words.map((word, i) => (
               <span key={i} className="inline-block overflow-hidden pb-1 align-bottom">
                 <motion.span
+                  data-reveal
                   className="inline-block"
                   initial={{ y: "110%" }}
                   animate={{ y: "0%" }}
@@ -99,6 +100,7 @@ export default function Hero({ content }: { content: HeroContent }) {
           </h1>
 
           <motion.p
+            data-reveal
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.9 }}
@@ -108,6 +110,7 @@ export default function Hero({ content }: { content: HeroContent }) {
           </motion.p>
 
           <motion.div
+            data-reveal
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 1.05 }}
@@ -128,10 +131,35 @@ export default function Hero({ content }: { content: HeroContent }) {
               {content.ctaSecondary}
             </MagneticButton>
           </motion.div>
+
+          {/* Mobile/tablette (< lg) : transition explicite vers Studio — le
+              hero ne doit jamais se terminer sur un espace mort silencieux. */}
+          <motion.a
+            href="#apropos"
+            data-reveal
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.7, delay: 1.2 }}
+            className="mt-16 flex items-center gap-4 pb-10 lg:hidden"
+          >
+            <span className="font-display text-xs tracking-[0.2em] text-mist-dim">01</span>
+            <span className="h-px flex-1 bg-line-strong" aria-hidden="true" />
+            <span className="font-display text-[11px] uppercase tracking-[0.3em] text-mist">
+              Studio
+            </span>
+            <motion.span
+              aria-hidden="true"
+              animate={{ y: [0, 4, 0] }}
+              transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+              className="text-mist-dim"
+            >
+              ↓
+            </motion.span>
+          </motion.a>
         </div>
       </div>
 
-      <div className="relative z-10 overflow-hidden border-t border-line py-4">
+      <div className="relative z-10 overflow-hidden border-t border-line py-3 sm:py-4">
         <div className="animate-marquee flex w-max gap-12 whitespace-nowrap font-display text-xs uppercase tracking-[0.35em] text-mist-dim">
           {Array.from({ length: 2 }).map((_, loop) => (
             <div key={loop} className="flex shrink-0 gap-12">

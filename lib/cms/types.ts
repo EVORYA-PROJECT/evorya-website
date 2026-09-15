@@ -63,6 +63,46 @@ export type FooterContent = {
   location: string;
 };
 
+export type WhyPointContent = {
+  index: string;
+  title: string;
+  description: string;
+};
+
+export type WhyContent = {
+  heading: string;
+  subheading: string;
+  points: WhyPointContent[];
+};
+
+export type FaqItemContent = {
+  question: string;
+  answer: string;
+};
+
+export type FaqContent = {
+  heading: string;
+  subheading: string;
+  items: FaqItemContent[];
+};
+
+export type ScanStepContent = {
+  index: string;
+  title: string;
+  description: string;
+};
+
+export type ScannerContent = {
+  heading: string;
+  subheading: string;
+  steps: ScanStepContent[];
+  finalHeading: string;
+  finalTagline: string;
+  ctaLabel: string;
+  matcherHeading: string;
+  matcherCta: string;
+};
+
 export type First10Status = "open" | "closed";
 
 export type First10Content = {
@@ -85,6 +125,9 @@ export type SiteContentMap = {
   contact: ContactContent;
   footer: FooterContent;
   first10: First10Content;
+  why: WhyContent;
+  faq: FaqContent;
+  scanner: ScannerContent;
 };
 
 export type SiteContentSection = keyof SiteContentMap;
@@ -98,6 +141,9 @@ export const SITE_CONTENT_SECTIONS: SiteContentSection[] = [
   "contact",
   "footer",
   "first10",
+  "why",
+  "faq",
+  "scanner",
 ];
 
 export type OfferRow = {

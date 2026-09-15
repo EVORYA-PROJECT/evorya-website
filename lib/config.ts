@@ -21,5 +21,10 @@ export const NAV_LINKS: NavLink[] = [
   { label: "Services", href: "#services" },
   { label: "Offres", href: "#offres" },
   { label: "Réalisations", href: "#realisations" },
+  { label: "Evorya First 10", href: "#evorya-first-10" },
   { label: "Contact", href: "#contact" },
 ];
+
+// CTA persistant mobile (voir components/ui/MobileCTA.tsx) : mêmes règles
+// que le CTA principal du Hero / de la navbar.
+export const PRIMARY_CTA_LABEL = "Démarrer un projet";

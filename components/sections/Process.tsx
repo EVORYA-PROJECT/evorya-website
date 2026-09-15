@@ -10,7 +10,7 @@ export default function Process({ content }: { content: ProcessContent }) {
     >
       <div className="mx-auto max-w-[1440px]">
         <RevealOnScroll>
-          <SectionLabel index="06" label="Processus" />
+          <SectionLabel index="07" label="Processus" />
         </RevealOnScroll>
 
         <RevealOnScroll delay={0.05}>
@@ -19,23 +19,40 @@ export default function Process({ content }: { content: ProcessContent }) {
           </h2>
         </RevealOnScroll>
 
-        <div className="relative mt-16 lg:mt-20">
-          <div
-            className="absolute left-0 right-0 top-6 hidden h-px bg-line lg:block"
-            aria-hidden="true"
-          />
-          <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
+        {/* Mobile/tablette (< lg) : timeline verticale compacte. */}
+        <div className="relative mt-14 flex flex-col lg:hidden">
+          <div className="absolute bottom-2 left-[5px] top-2 w-px bg-line" aria-hidden="true" />
+          {content.steps.map((step, i) => (
+            <RevealOnScroll key={step.index} delay={i * 0.06}>
+              <div className="relative flex gap-5 pb-9 pl-0 last:pb-0">
+                <span className="relative z-10 mt-1.5 h-[11px] w-[11px] shrink-0 rounded-full border border-paper bg-ink" />
+                <div className="-mt-1">
+                  <span className="font-display text-xs tracking-[0.2em] text-mist-dim">
+                    {step.index}
+                  </span>
+                  <h3 className="mt-2 text-lg font-medium text-paper">{step.title}</h3>
+                  <p className="mt-2 max-w-sm text-sm leading-relaxed text-mist">
+                    {step.description}
+                  </p>
+                </div>
+              </div>
+            </RevealOnScroll>
+          ))}
+        </div>
+
+        {/* Desktop (>= lg) : composition existante, inchangée. */}
+        <div className="relative mt-20 hidden lg:block">
+          <div className="absolute left-0 right-0 top-6 h-px bg-line" aria-hidden="true" />
+          <div className="grid grid-cols-4 gap-8">
             {content.steps.map((step, i) => (
               <RevealOnScroll key={step.index} delay={i * 0.08}>
-                <div className="relative pl-0 lg:pt-16">
-                  <span className="absolute left-0 top-0 hidden h-3 w-3 -translate-y-1/2 rounded-full border border-paper bg-ink lg:top-6 lg:block" />
+                <div className="relative pt-16">
+                  <span className="absolute left-0 top-6 block h-3 w-3 -translate-y-1/2 rounded-full border border-paper bg-ink" />
                   <span className="font-display text-sm tracking-[0.2em] text-mist-dim">
                     {step.index}
                   </span>
-                  <h3 className="mt-4 text-xl font-medium text-paper sm:text-2xl">
-                    {step.title}
-                  </h3>
-                  <p className="mt-3 max-w-xs text-sm leading-relaxed text-mist sm:text-base">
+                  <h3 className="mt-4 text-2xl font-medium text-paper">{step.title}</h3>
+                  <p className="mt-3 max-w-xs text-base leading-relaxed text-mist">
                     {step.description}
                   </p>
                 </div>

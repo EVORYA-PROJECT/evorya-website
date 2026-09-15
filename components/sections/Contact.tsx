@@ -8,6 +8,7 @@ import MagneticButton from "@/components/ui/MagneticButton";
 import CustomSelect from "@/components/ui/CustomSelect";
 import CountrySelect from "@/components/ui/CountrySelect";
 import TermsModal from "@/components/ui/TermsModal";
+import { useProjectMatch } from "@/lib/project-match/context";
 import type { ContactContent, OfferRow } from "@/lib/cms/types";
 import { DEFAULT_COUNTRY_CODE, getCountryByCode } from "@/lib/data/countries";
 import {
@@ -85,6 +86,26 @@ export default function Contact({
   const phoneInputRef = useRef<HTMLInputElement | null>(null);
   const pendingCaretRef = useRef<number | null>(null);
   const countryDial = getCountryByCode(countryCode)?.dial ?? "212";
+  const { selection } = useProjectMatch();
+
+  // Présélection depuis le Project Matcher : l'offre recommandée est
+  // toujours appliquée (c'est un choix dans une liste, pas du texte libre),
+  // mais le message de l'utilisateur n'est JAMAIS remplacé — le résumé du
+  // Matcher n'est ajouté que si le champ message est encore vide. Ajusté
+  // pendant le rendu (pas un effet), comme dans components/sections/Offers.tsx.
+  const [lastSelectionToken, setLastSelectionToken] = useState(selection?.token ?? 0);
+  if (selection && selection.token !== lastSelectionToken) {
+    setLastSelectionToken(selection.token);
+    const matchedOffer = offers.find((o) => o.id === selection.offerId);
+    setValues((prev) => ({
+      ...prev,
+      offer: matchedOffer?.name ?? prev.offer,
+      message:
+        selection.prefillMessage && prev.message.trim() === ""
+          ? selection.prefillMessage
+          : prev.message,
+    }));
+  }
 
   // Restaure la position du curseur après reformatage du téléphone : React
   // réapplique la valeur formatée après le rendu, donc le curseur doit être
@@ -178,7 +199,7 @@ export default function Contact({
     >
       <div className="mx-auto max-w-[1440px]">
         <RevealOnScroll>
-          <SectionLabel index="08" label="Contact" />
+          <SectionLabel index="11" label="Contact" />
         </RevealOnScroll>
 
         <div className="mt-10 grid gap-16 lg:mt-16 lg:grid-cols-12 lg:gap-8">
@@ -192,18 +213,6 @@ export default function Contact({
               <p className="mt-6 max-w-sm text-base text-mist sm:text-lg">
                 {content.subheading}
               </p>
-            </RevealOnScroll>
-
-            <RevealOnScroll delay={0.15}>
-              <div className="mt-12 border-t border-line pt-8">
-                <p className="text-sm text-mist">{content.directLine}</p>
-                <a
-                  href={`mailto:${content.email}`}
-                  className="mt-3 inline-block font-display text-lg uppercase tracking-[0.1em] text-paper underline decoration-line-strong decoration-1 underline-offset-4 transition-colors hover:decoration-paper sm:text-xl"
-                >
-                  {content.email}
-                </a>
-              </div>
             </RevealOnScroll>
           </div>
 
@@ -399,6 +408,20 @@ export default function Contact({
                     </motion.form>
                   )}
                 </AnimatePresence>
+              </div>
+            </RevealOnScroll>
+
+            {/* Alternative secondaire : après le formulaire, jamais avant —
+                l'action principale reste le formulaire, pas l'email direct. */}
+            <RevealOnScroll delay={0.15}>
+              <div className="mt-10 border-t border-line pt-8 sm:mt-12">
+                <p className="text-sm text-mist">{content.directLine}</p>
+                <a
+                  href={`mailto:${content.email}`}
+                  className="mt-3 inline-block max-w-full break-all py-3 font-display text-[clamp(0.95rem,4.2vw,1.125rem)] uppercase tracking-[0.08em] text-paper underline decoration-line-strong decoration-1 underline-offset-4 transition-colors hover:decoration-paper sm:text-xl sm:tracking-[0.1em]"
+                >
+                  {content.email}
+                </a>
               </div>
             </RevealOnScroll>
           </div>

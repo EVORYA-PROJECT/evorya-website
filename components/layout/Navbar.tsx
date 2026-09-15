@@ -1,14 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { AnimatePresence, motion } from "motion/react";
-import { NAV_LINKS } from "@/lib/config";
+import { NAV_LINKS, PRIMARY_CTA_LABEL } from "@/lib/config";
 import MagneticButton from "@/components/ui/MagneticButton";
+import MobileMenu from "@/components/layout/MobileMenu";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     function handleScroll() {
@@ -25,10 +26,6 @@ export default function Navbar() {
       document.documentElement.style.overflow = "";
     };
   }, [open]);
-
-  function handleNavigate() {
-    setOpen(false);
-  }
 
   return (
     <header
@@ -81,15 +78,17 @@ export default function Navbar() {
             href="#contact"
             className="inline-flex items-center border border-line-strong px-6 py-3 font-display text-xs uppercase tracking-[0.25em] text-paper transition-colors hover:border-paper"
           >
-            Démarrer un projet
+            {PRIMARY_CTA_LABEL}
           </MagneticButton>
         </div>
 
         <button
+          ref={triggerRef}
           type="button"
           onClick={() => setOpen((v) => !v)}
           className="relative z-10 flex h-11 w-11 flex-col items-center justify-center gap-[6px] lg:hidden"
           aria-expanded={open}
+          aria-controls="mobile-nav"
           aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}
         >
           <span
@@ -105,45 +104,9 @@ export default function Navbar() {
         </button>
       </div>
 
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 top-[72px] z-40 flex flex-col bg-ink lg:hidden"
-          >
-            <nav
-              className="flex flex-1 flex-col justify-center gap-2 px-8"
-              aria-label="Navigation mobile"
-            >
-              {NAV_LINKS.map((link, i) => (
-                <motion.a
-                  key={link.href}
-                  href={link.href}
-                  onClick={handleNavigate}
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.06 * i, duration: 0.4 }}
-                  className="border-b border-line py-5 font-display text-3xl uppercase tracking-wide text-paper active:opacity-60"
-                >
-                  {link.label}
-                </motion.a>
-              ))}
-            </nav>
-            <div className="px-8 pb-10">
-              <a
-                href="#contact"
-                onClick={handleNavigate}
-                className="flex h-14 w-full items-center justify-center bg-paper font-display text-xs uppercase tracking-[0.25em] text-ink"
-              >
-                Démarrer un projet
-              </a>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <div id="mobile-nav">
+        <MobileMenu open={open} onClose={() => setOpen(false)} triggerRef={triggerRef} />
+      </div>
     </header>
   );
 }

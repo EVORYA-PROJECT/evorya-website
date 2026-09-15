@@ -1,6 +1,7 @@
 import "server-only";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database";
+import { createResilientFetch } from "@/lib/supabase/resilient-fetch";
 
 /**
  * Client Supabase "service role" — contourne les policies RLS.
@@ -24,5 +25,6 @@ export function createSupabaseServiceRoleClient() {
       autoRefreshToken: false,
       persistSession: false,
     },
+    global: { fetch: createResilientFetch() },
   });
 }

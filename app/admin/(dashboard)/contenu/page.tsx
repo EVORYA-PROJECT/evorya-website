@@ -7,6 +7,9 @@ const SECTIONS = [
   { href: "/admin/contenu/offres", label: "Offres", description: "Essentiel, Signature, Sur Mesure." },
   { href: "/admin/contenu/transparence", label: "Transparence", description: "Les 4 points de transparence." },
   { href: "/admin/contenu/processus", label: "Processus", description: "Les 4 étapes de la méthode Evorya." },
+  { href: "/admin/contenu/pourquoi-evorya", label: "Pourquoi Evorya", description: "Les points de la section de conversion." },
+  { href: "/admin/contenu/faq", label: "FAQ", description: "Questions/réponses affichées avant Contact." },
+  { href: "/admin/contenu/scanner", label: "Project Scanner", description: "Les 5 étapes et le texte final avant Contact." },
   { href: "/admin/contenu/contact", label: "Contact", description: "Textes d'introduction du formulaire." },
   { href: "/admin/contenu/footer", label: "Footer", description: "Textes du pied de page." },
 ];

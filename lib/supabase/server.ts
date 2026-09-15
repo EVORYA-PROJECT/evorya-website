@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 import type { Database } from "@/types/database";
+import { createResilientFetch } from "@/lib/supabase/resilient-fetch";
 
 /**
  * Client Supabase serveur (Server Components, Route Handlers, Server Actions).
@@ -35,5 +36,6 @@ export async function createSupabaseServerClient() {
         }
       },
     },
+    global: { fetch: createResilientFetch() },
   });
 }

@@ -12,6 +12,9 @@ import {
   type ContactContent,
   type FooterContent,
   type First10Content,
+  type WhyContent,
+  type FaqContent,
+  type ScannerContent,
   type OfferRow,
   type ProjectRow,
   type SiteContentMap,
@@ -38,6 +41,9 @@ function mergeRowsOverDefaults(rows: SiteContentRow[]): SiteContentQueryResult {
     contact: { ...SITE_CONTENT_DEFAULTS.contact },
     footer: { ...SITE_CONTENT_DEFAULTS.footer },
     first10: { ...SITE_CONTENT_DEFAULTS.first10 },
+    why: { ...SITE_CONTENT_DEFAULTS.why },
+    faq: { ...SITE_CONTENT_DEFAULTS.faq },
+    scanner: { ...SITE_CONTENT_DEFAULTS.scanner },
   };
   const updatedAt: Partial<Record<SiteContentSection, string>> = {};
 
@@ -70,6 +76,15 @@ function mergeRowsOverDefaults(rows: SiteContentRow[]): SiteContentQueryResult {
         break;
       case "first10":
         content.first10 = { ...content.first10, ...patch } as First10Content;
+        break;
+      case "why":
+        content.why = { ...content.why, ...patch } as WhyContent;
+        break;
+      case "faq":
+        content.faq = { ...content.faq, ...patch } as FaqContent;
+        break;
+      case "scanner":
+        content.scanner = { ...content.scanner, ...patch } as ScannerContent;
         break;
     }
     updatedAt[section] = row.updated_at;
