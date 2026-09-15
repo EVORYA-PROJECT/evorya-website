@@ -19,7 +19,7 @@ export const SITE_CONTENT_DEFAULTS: SiteContentMap = {
     ctaSecondary: "Découvrir nos offres",
   },
   studio: {
-    lead: "Evorya accompagne les entreprises dans la création d'une présence digitale moderne, crédible et mémorable.",
+    lead: "Evorya accompagne les entreprises dans la création d'une présence digitale qui leur ressemble et qui inspire confiance dès le premier regard.",
     body: "Nous ne créons pas simplement des pages web. Nous construisons une expérience pensée autour de votre entreprise, de votre clientèle et de votre identité.",
     tag: "PROJECT 001 — EVORYA",
   },
@@ -32,8 +32,7 @@ export const SITE_CONTENT_DEFAULTS: SiteContentMap = {
     subheading:
       "Un système simple, pensé pour qu'aucune surprise ne s'invite entre le premier échange et la mise en ligne.",
     points: TRANSPARENCY_POINTS,
-    footnote:
-      "Chez Evorya, nous faisons confiance à nos clients : aucun coût supplémentaire n'est jamais ajouté sans votre accord.",
+    footnote: "Aucun frais supplémentaire sans votre accord préalable.",
   },
   process: {
     heading: "Une méthode claire, du premier échange à la mise en ligne",

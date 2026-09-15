@@ -39,7 +39,7 @@ Découvrir nos offres
 
 # À PROPOS
 
-Evorya accompagne les entreprises dans la création d'une présence digitale moderne, crédible et mémorable.
+Evorya accompagne les entreprises dans la création d'une présence digitale qui leur ressemble et qui inspire confiance dès le premier regard.
 
 Nous ne créons pas simplement des pages web.
 

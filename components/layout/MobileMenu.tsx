@@ -26,6 +26,15 @@ type MobileMenuProps = {
  */
 export default function MobileMenu({ open, onClose, triggerRef }: MobileMenuProps) {
   const navRef = useRef<HTMLDivElement | null>(null);
+  // Position mémorisée une seule fois, à l'ouverture — jamais recalculée
+  // pendant que le menu est ouvert (contrairement à window.scrollY, qui
+  // peut valoir 0 une fois le body en position: fixed).
+  const scrollPositionRef = useRef(0);
+  // Distingue une fermeture simple (X / Escape), qui doit rendre
+  // exactement la position précédente, d'un clic volontaire sur un lien
+  // du menu, qui doit au contraire laisser la navigation vers la section
+  // ciblée se produire sans être annulée par la restauration du scroll.
+  const navigatingRef = useRef(false);
 
   // Verrouillage du scroll iOS-safe : figer le <body> en position: fixed
   // (plutôt que overflow: hidden sur <html>, non fiable sur Safari iOS où
@@ -34,9 +43,10 @@ export default function MobileMenu({ open, onClose, triggerRef }: MobileMenuProp
   useEffect(() => {
     if (!open) return;
 
-    const scrollY = window.scrollY;
-    const { body } = document;
-    const previous = {
+    scrollPositionRef.current = window.scrollY;
+
+    const { body, documentElement } = document;
+    const previousBodyStyle = {
       position: body.style.position,
       top: body.style.top,
       left: body.style.left,
@@ -45,18 +55,28 @@ export default function MobileMenu({ open, onClose, triggerRef }: MobileMenuProp
     };
 
     body.style.position = "fixed";
-    body.style.top = `-${scrollY}px`;
+    body.style.top = `-${scrollPositionRef.current}px`;
     body.style.left = "0";
     body.style.right = "0";
     body.style.width = "100%";
 
     return () => {
-      body.style.position = previous.position;
-      body.style.top = previous.top;
-      body.style.left = previous.left;
-      body.style.right = previous.right;
-      body.style.width = previous.width;
-      window.scrollTo(0, scrollY);
+      body.style.position = previousBodyStyle.position;
+      body.style.top = previousBodyStyle.top;
+      body.style.left = previousBodyStyle.left;
+      body.style.right = previousBodyStyle.right;
+      body.style.width = previousBodyStyle.width;
+
+      if (!navigatingRef.current) {
+        // Le site définit `scroll-behavior: smooth` globalement (voir
+        // globals.css) : sans ce neutralisateur temporaire, ce scrollTo
+        // technique serait animé au lieu d'être instantané.
+        const previousScrollBehavior = documentElement.style.scrollBehavior;
+        documentElement.style.scrollBehavior = "auto";
+        window.scrollTo(0, scrollPositionRef.current);
+        documentElement.style.scrollBehavior = previousScrollBehavior;
+      }
+      navigatingRef.current = false;
     };
   }, [open]);
 
@@ -95,9 +115,20 @@ export default function MobileMenu({ open, onClose, triggerRef }: MobileMenuProp
     return () => {
       window.clearTimeout(t);
       document.removeEventListener("keydown", handleKeyDown);
-      trigger?.focus();
+      // preventScroll : le bouton déclencheur vit dans le header fixed,
+      // déjà visible en permanence. Sans cette option, Safari iOS peut
+      // recalculer sa mise en page juste après le retrait du
+      // position: fixed du body et faire défiler la page vers le haut
+      // pour "amener le bouton dans la vue" — c'était la cause du retour
+      // en haut de page à la fermeture.
+      trigger?.focus({ preventScroll: true });
     };
   }, [open, onClose, triggerRef]);
+
+  function handleLinkClick() {
+    navigatingRef.current = true;
+    onClose();
+  }
 
   if (typeof document === "undefined") return null;
 
@@ -120,7 +151,7 @@ export default function MobileMenu({ open, onClose, triggerRef }: MobileMenuProp
               <motion.a
                 key={link.href}
                 href={link.href}
-                onClick={onClose}
+                onClick={handleLinkClick}
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.05 * i, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
@@ -138,7 +169,7 @@ export default function MobileMenu({ open, onClose, triggerRef }: MobileMenuProp
           <div className="px-6 pb-[max(2.5rem,env(safe-area-inset-bottom))] sm:px-8">
             <a
               href="#contact"
-              onClick={onClose}
+              onClick={handleLinkClick}
               className="flex h-14 w-full items-center justify-center bg-paper font-display text-xs uppercase tracking-[0.25em] text-ink"
             >
               {PRIMARY_CTA_LABEL}
