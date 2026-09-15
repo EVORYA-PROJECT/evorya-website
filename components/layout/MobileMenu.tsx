@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "motion/react";
 import { NAV_LINKS, PRIMARY_CTA_LABEL } from "@/lib/config";
 
@@ -13,12 +14,51 @@ type MobileMenuProps = {
 /**
  * Menu mobile plein écran : identité Evorya (index numérotés, révélation
  * typographique, lignes) plutôt qu'un menu générique. Gère lui-même le
- * focus (piège au Tab, restitution au déclencheur à la fermeture) et
- * Escape — le verrouillage du scroll de fond reste dans Navbar (concerne
- * aussi bien l'ouverture programmatique que le clic sur le bouton).
+ * focus (piège au Tab, restitution au déclencheur à la fermeture), Escape
+ * et le verrouillage du scroll de fond.
+ *
+ * Rendu via un portal dans document.body : imbriqué dans le <header>, ce
+ * composant partageait le contexte d'empilement du bandeau (dont le fond
+ * devient translucide + flouté une fois la page scrollée), ce qui rendait
+ * son opacité dépendante du header au lieu d'être garantie par lui-même.
+ * Le portal découple entièrement le panneau du reste de l'arbre — plus
+ * fiable qu'un simple ajustement de z-index.
  */
 export default function MobileMenu({ open, onClose, triggerRef }: MobileMenuProps) {
   const navRef = useRef<HTMLDivElement | null>(null);
+
+  // Verrouillage du scroll iOS-safe : figer le <body> en position: fixed
+  // (plutôt que overflow: hidden sur <html>, non fiable sur Safari iOS où
+  // le body derrière peut continuer à défiler en rubber-band) et restaurer
+  // exactement la position de scroll à la fermeture, sans saut visuel.
+  useEffect(() => {
+    if (!open) return;
+
+    const scrollY = window.scrollY;
+    const { body } = document;
+    const previous = {
+      position: body.style.position,
+      top: body.style.top,
+      left: body.style.left,
+      right: body.style.right,
+      width: body.style.width,
+    };
+
+    body.style.position = "fixed";
+    body.style.top = `-${scrollY}px`;
+    body.style.left = "0";
+    body.style.right = "0";
+    body.style.width = "100%";
+
+    return () => {
+      body.style.position = previous.position;
+      body.style.top = previous.top;
+      body.style.left = previous.left;
+      body.style.right = previous.right;
+      body.style.width = previous.width;
+      window.scrollTo(0, scrollY);
+    };
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -59,7 +99,9 @@ export default function MobileMenu({ open, onClose, triggerRef }: MobileMenuProp
     };
   }, [open, onClose, triggerRef]);
 
-  return (
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <AnimatePresence>
       {open && (
         <motion.div
@@ -68,10 +110,10 @@ export default function MobileMenu({ open, onClose, triggerRef }: MobileMenuProp
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
-          className="fixed inset-0 top-[72px] z-40 flex flex-col bg-ink lg:hidden"
+          className="fixed inset-0 z-40 flex h-dvh flex-col bg-ink lg:hidden"
         >
           <nav
-            className="flex flex-1 flex-col justify-center gap-1 px-6 sm:px-8"
+            className="flex flex-1 flex-col justify-center gap-1 px-6 pt-[72px] sm:px-8"
             aria-label="Navigation mobile"
           >
             {NAV_LINKS.map((link, i) => (
@@ -104,6 +146,7 @@ export default function MobileMenu({ open, onClose, triggerRef }: MobileMenuProp
           </div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   );
 }
