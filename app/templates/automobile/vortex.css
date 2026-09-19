@@ -1,0 +1,257 @@
+/*
+ * Garage Vortex — feuille de style locale de la démo sectorielle automobile.
+ * Volontairement isolée sous `.vx` : rien ici ne doit fuir sur le site Evorya.
+ * Langage visuel : plaque usinée, calque blueprint, repères de mesure,
+ * diagonales directionnelles, un seul rouge signal utilisé franchement.
+ */
+
+.vx {
+  --vx-void: #08090b;
+  --vx-carbon: #0f1216;
+  --vx-steel: #161a20;
+  --vx-steel-hi: #1f242c;
+  --vx-line: #2b323b;
+  --vx-line-soft: rgba(199, 205, 212, 0.12);
+  --vx-chrome: #c8ced6;
+  --vx-mute: #8a939e;
+  --vx-white: #f2f4f7;
+  --vx-red: #e5261c;
+  --vx-red-hi: #ff5a3a;
+  --vx-red-deep: #6f0f0a;
+
+  background-color: var(--vx-void);
+  color: var(--vx-chrome);
+  overflow-x: clip;
+}
+
+.vx ::selection {
+  background: var(--vx-red);
+  color: #ffffff;
+}
+
+.vx :focus-visible {
+  outline: 2px solid var(--vx-red-hi);
+  outline-offset: 3px;
+}
+
+/* Étiquettes techniques : cotes, références, coordonnées. */
+.vx-mono {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Grand mot-signature en contour, jamais en aplat. */
+.vx-outline {
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--vx-red);
+}
+
+@media (min-width: 1024px) {
+  .vx-outline {
+    -webkit-text-stroke-width: 2px;
+  }
+}
+
+.vx-outline-chrome {
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(199, 205, 212, 0.35);
+}
+
+/* Fond blueprint : trame fine 16px + trame de repère 96px. */
+.vx-blueprint {
+  background-image:
+    linear-gradient(to right, rgba(199, 205, 212, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(199, 205, 212, 0.05) 1px, transparent 1px),
+    linear-gradient(to right, rgba(199, 205, 212, 0.1) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(199, 205, 212, 0.1) 1px, transparent 1px);
+  background-size:
+    16px 16px,
+    16px 16px,
+    96px 96px,
+    96px 96px;
+}
+
+/* Champ de hachures directionnelles. */
+.vx-diag {
+  background-image: repeating-linear-gradient(
+    115deg,
+    rgba(199, 205, 212, 0.07) 0 1px,
+    transparent 1px 11px
+  );
+}
+
+.vx-diag-red {
+  background-image: repeating-linear-gradient(
+    115deg,
+    rgba(229, 38, 28, 0.55) 0 2px,
+    transparent 2px 12px
+  );
+}
+
+/* Réglette de mesure : petites graduations + graduations principales. */
+.vx-rule {
+  background-image:
+    repeating-linear-gradient(to right, var(--vx-line) 0 1px, transparent 1px 10px),
+    repeating-linear-gradient(
+      to right,
+      rgba(199, 205, 212, 0.4) 0 1px,
+      transparent 1px 80px
+    );
+  background-repeat: repeat-x;
+  background-size:
+    10px 6px,
+    80px 12px;
+  background-position: bottom left;
+}
+
+/* Plaque usinée : deux angles chanfreinés, jamais un bloc arrondi. */
+.vx-plate {
+  clip-path: polygon(
+    14px 0,
+    100% 0,
+    100% calc(100% - 14px),
+    calc(100% - 14px) 100%,
+    0 100%,
+    0 14px
+  );
+}
+
+.vx-plate-sm {
+  clip-path: polygon(
+    9px 0,
+    100% 0,
+    100% calc(100% - 9px),
+    calc(100% - 9px) 100%,
+    0 100%,
+    0 9px
+  );
+}
+
+/* Coupe diagonale basse de section (composition directionnelle). */
+.vx-slant-b {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 calc(100% - 4vw));
+}
+
+/* Bandeau d'atelier discret, pas un ruban de chantier. */
+.vx-hatch {
+  background-image: repeating-linear-gradient(
+    135deg,
+    var(--vx-red) 0 7px,
+    transparent 7px 16px
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Photographies : elles doivent appartenir au même univers que les     */
+/* planches techniques — désaturées, assombries, traversées d'un voile  */
+/* rouge diagonal, jamais une photo « stock » posée telle quelle.        */
+/* ------------------------------------------------------------------ */
+
+.vx-photo {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--vx-void);
+}
+
+.vx-photo img {
+  filter: saturate(0.78) contrast(1.08) brightness(0.92);
+}
+
+/* Voile de fusion : dégradé bas + faisceau rouge dans l'axe des diagonales. */
+.vx-photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(
+      to top,
+      rgba(8, 9, 11, 0.78) 0%,
+      rgba(8, 9, 11, 0.24) 38%,
+      rgba(8, 9, 11, 0) 68%
+    ),
+    linear-gradient(115deg, rgba(229, 38, 28, 0.16) 0%, rgba(229, 38, 28, 0) 52%);
+}
+
+/* Trame de relevé, réservée aux grands panneaux. */
+.vx-photo-grid::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.4;
+  background-image:
+    linear-gradient(to right, rgba(199, 205, 212, 0.09) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(199, 205, 212, 0.09) 1px, transparent 1px);
+  background-size:
+    48px 48px,
+    48px 48px;
+}
+
+/* Filet chrome intérieur : la photo devient une plaque montée. */
+.vx-photo-edge {
+  box-shadow: inset 0 0 0 1px var(--vx-line);
+}
+
+/* Micro-interaction desktop : léger rapprochement, franc et court. */
+@media (hover: hover) and (pointer: fine) {
+  .vx-photo img {
+    transition:
+      transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+      filter 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .group:hover .vx-photo img,
+  .group:focus-within .vx-photo img {
+    transform: scale(1.035);
+    filter: saturate(0.92) contrast(1.08) brightness(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vx-photo img {
+    transition: none;
+  }
+}
+
+/* Balayage rouge au survol d'une ligne de prestation (desktop). */
+.vx-wipe {
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .vx-row:hover .vx-wipe,
+  .vx-row:focus-within .vx-wipe {
+    transform: scaleX(1);
+  }
+}
+
+/* Trait qui se trace sous un lien de navigation. */
+.vx-underline::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -6px;
+  height: 2px;
+  width: 100%;
+  background: var(--vx-red);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.vx-underline:hover::after,
+.vx-underline:focus-visible::after,
+.vx-underline[data-active="true"]::after {
+  transform: scaleX(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vx-wipe,
+  .vx-underline::after {
+    transition: none;
+  }
+}

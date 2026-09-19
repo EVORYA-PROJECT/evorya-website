@@ -15,7 +15,7 @@ export default function Transparency({ content }: { content: TransparencyContent
 
       <div className="relative mx-auto max-w-[1440px]">
         <RevealOnScroll>
-          <SectionLabel index="05" label="Transparence" />
+          <SectionLabel index="06" label="Transparence" />
         </RevealOnScroll>
 
         <div className="mt-8 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">

@@ -10,7 +10,7 @@ export default function Process({ content }: { content: ProcessContent }) {
     >
       <div className="mx-auto max-w-[1440px]">
         <RevealOnScroll>
-          <SectionLabel index="07" label="Processus" />
+          <SectionLabel index="08" label="Processus" />
         </RevealOnScroll>
 
         <RevealOnScroll delay={0.05}>

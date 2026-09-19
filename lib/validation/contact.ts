@@ -17,9 +17,17 @@ export const contactFormSchema = z.object({
     .min(1, "L'email est requis.")
     .email("Adresse email invalide."),
   phone: z.string().trim().max(30, "Ce champ est trop long.").optional().or(z.literal("")),
-  offer: z.string().trim().max(120).optional().or(z.literal("")),
-  budget: z.string().trim().max(120).optional().or(z.literal("")),
-  websiteType: z.string().trim().max(120).optional().or(z.literal("")),
+  websiteType: z.string().trim().max(160).optional().or(z.literal("")),
+  objective: z.string().trim().max(160).optional().or(z.literal("")),
+  features: z.array(z.string().trim().max(80)).max(20).optional().default([]),
+  identityStatus: z.string().trim().max(120).optional().or(z.literal("")),
+  contentStatus: z.string().trim().max(120).optional().or(z.literal("")),
+  timeline: z.string().trim().max(120).optional().or(z.literal("")),
+  // Direction choisie dans le formulaire ou présélectionnée depuis une démo.
+  // C'est toujours une chaîne lisible ("Automobile / Garage — Garage Vortex"
+  // ou "Autre / aucune préférence"), jamais un slug brut. Le champ reste
+  // optionnel pour accepter les anciens clients et anciennes demandes.
+  templateInterest: z.string().trim().max(160).optional().or(z.literal("")),
   message: z
     .string()
     .trim()

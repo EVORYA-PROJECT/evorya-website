@@ -1,5 +1,7 @@
 "use client";
 
+import MobileDisclosure from "@/components/ui/MobileDisclosure";
+
 import { useLayoutEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import RevealOnScroll from "@/components/ui/RevealOnScroll";
@@ -7,10 +9,24 @@ import SectionLabel from "@/components/ui/SectionLabel";
 import MagneticButton from "@/components/ui/MagneticButton";
 import CustomSelect from "@/components/ui/CustomSelect";
 import CountrySelect from "@/components/ui/CountrySelect";
+import { useVisitorPreferences } from "@/components/providers/VisitorPreferencesProvider";
+import ChipToggleGroup from "@/components/ui/ChipToggleGroup";
 import TermsModal from "@/components/ui/TermsModal";
-import { useProjectMatch } from "@/lib/project-match/context";
-import type { ContactContent, OfferRow } from "@/lib/cms/types";
-import { DEFAULT_COUNTRY_CODE, getCountryByCode } from "@/lib/data/countries";
+import TemplateInspirationSelector, {
+  NO_TEMPLATE_PREFERENCE,
+} from "@/components/templates/TemplateInspirationSelector";
+import type { ContactContent } from "@/lib/cms/types";
+import { getCountryByCode } from "@/lib/data/countries";
+import { formatTemplateInterest } from "@/lib/templates/registry";
+import { useTemplateSelection } from "@/lib/templates/selection-context";
+import {
+  CONTENT_OPTIONS,
+  FEATURE_OPTIONS,
+  IDENTITY_OPTIONS,
+  OBJECTIVE_OPTIONS,
+  PROJECT_TYPE_OPTIONS,
+  TIMELINE_OPTIONS,
+} from "@/lib/data/contact-options";
 import {
   displayValueFromFull,
   formatPhoneField,
@@ -24,19 +40,7 @@ import {
   type ContactFormValues,
 } from "@/lib/validation/contact";
 
-const BUDGET_OPTIONS = [
-  { value: "< 2000 MAD", label: "Moins de 2 000 MAD" },
-  { value: "2000-3500 MAD", label: "2 000 – 3 500 MAD" },
-  { value: "3500-5000 MAD", label: "3 500 – 5 000 MAD" },
-  { value: "> 5000 MAD", label: "Plus de 5 000 MAD" },
-];
-
-const WEBSITE_TYPE_OPTIONS = [
-  { value: "Vitrine", label: "Site vitrine" },
-  { value: "E-commerce", label: "Site e-commerce" },
-  { value: "Portfolio", label: "Portfolio" },
-  { value: "Autre", label: "Autre" },
-];
+const OTHER_VALUE = "Autre";
 
 type Status = "idle" | "sending" | "sent" | "error";
 
@@ -49,9 +53,13 @@ const initialValues: ContactFormValues = {
   company: "",
   email: "",
   phone: "",
-  offer: "",
-  budget: "",
   websiteType: "",
+  objective: "",
+  features: [],
+  identityStatus: "",
+  contentStatus: "",
+  timeline: "",
+  templateInterest: "",
   message: "",
   acceptedTerms: false,
   website: "",
@@ -63,17 +71,15 @@ function FieldError({ message }: { message?: string }) {
   return <span className="mt-1 text-xs text-danger">{message}</span>;
 }
 
-export default function Contact({
-  content,
-  offers,
-}: {
-  content: ContactContent;
-  offers: OfferRow[];
-}) {
-  const offerOptions = [
-    ...offers.map((offer) => ({ value: offer.name, label: offer.name })),
-    { value: "A definir", label: "À définir ensemble" },
-  ];
+function GroupHeading({ children }: { children: string }) {
+  return (
+    <div className="border-t border-line pt-6 font-display text-[11px] uppercase tracking-[0.25em] text-mist-dim sm:col-span-2">
+      {children}
+    </div>
+  );
+}
+
+export default function Contact({ content }: { content: ContactContent }) {
   const [values, setValues] = useState<ContactFormValues>(() => ({
     ...initialValues,
     startedAt: Date.now(),
@@ -81,31 +87,38 @@ export default function Contact({
   const [status, setStatus] = useState<Status>("idle");
   const [fieldErrors, setFieldErrors] = useState<ContactFormFieldErrors>({});
   const [serverError, setServerError] = useState<string | null>(null);
-  const [countryCode, setCountryCode] = useState(DEFAULT_COUNTRY_CODE);
+  const { phoneCountryCode: countryCode, setPhoneCountryCode } = useVisitorPreferences();
   const [termsOpen, setTermsOpen] = useState(false);
+  // Précisions libres affichées seulement quand "Autre" est choisi — fusionnées
+  // dans la valeur envoyée au submit, jamais stockées comme champs séparés
+  // (voir handleSubmit) : pas besoin d'alourdir le schéma ou la base pour ça.
+  const [websiteTypeOther, setWebsiteTypeOther] = useState("");
+  const [objectiveOther, setObjectiveOther] = useState("");
+  // Inspiration sélectionnée depuis /templates (facultative) — source unique
+  // partagée avec la galerie et chaque démo, voir lib/templates/selection-context.
+  const {
+    selected: selectedTemplate,
+    select: selectTemplate,
+    clear: clearTemplateSelection,
+  } = useTemplateSelection();
+  const templateInterest = selectedTemplate ? formatTemplateInterest(selectedTemplate) : null;
   const phoneInputRef = useRef<HTMLInputElement | null>(null);
   const pendingCaretRef = useRef<number | null>(null);
   const countryDial = getCountryByCode(countryCode)?.dial ?? "212";
-  const { selection } = useProjectMatch();
+  const previousDialRef = useRef(countryDial);
 
-  // Présélection depuis le Project Matcher : l'offre recommandée est
-  // toujours appliquée (c'est un choix dans une liste, pas du texte libre),
-  // mais le message de l'utilisateur n'est JAMAIS remplacé — le résumé du
-  // Matcher n'est ajouté que si le champ message est encore vide. Ajusté
-  // pendant le rendu (pas un effet), comme dans components/sections/Offers.tsx.
-  const [lastSelectionToken, setLastSelectionToken] = useState(selection?.token ?? 0);
-  if (selection && selection.token !== lastSelectionToken) {
-    setLastSelectionToken(selection.token);
-    const matchedOffer = offers.find((o) => o.id === selection.offerId);
-    setValues((prev) => ({
-      ...prev,
-      offer: matchedOffer?.name ?? prev.offer,
-      message:
-        selection.prefillMessage && prev.message.trim() === ""
-          ? selection.prefillMessage
-          : prev.message,
+  // Detection and manual changes share the same path: preserve the national
+  // digits, then store the final number under its new international prefix.
+  useLayoutEffect(() => {
+    const previousDial = previousDialRef.current;
+    if (previousDial === countryDial) return;
+    setValues((previous) => ({
+      ...previous,
+      phone: reformatForNewDial(previous.phone ?? "", previousDial, countryDial),
     }));
-  }
+    setFieldErrors((previous) => ({ ...previous, phone: undefined }));
+    previousDialRef.current = countryDial;
+  }, [countryDial]);
 
   // Restaure la position du curseur après reformatage du téléphone : React
   // réapplique la valeur formatée après le rendu, donc le curseur doit être
@@ -129,18 +142,41 @@ export default function Contact({
     updateField("phone", full);
   }
 
+  function toggleFeature(value: string) {
+    setValues((prev) => ({
+      ...prev,
+      features: prev.features.includes(value)
+        ? prev.features.filter((f) => f !== value)
+        : [...prev.features, value],
+    }));
+  }
+
   function handleCountryChange(nextCode: string) {
-    const previousDial = countryDial;
-    const nextDial = getCountryByCode(nextCode)?.dial ?? previousDial;
-    setCountryCode(nextCode);
-    updateField("phone", reformatForNewDial(values.phone ?? "", previousDial, nextDial));
+    setPhoneCountryCode(nextCode);
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (status === "sending") return;
 
-    const parsed = contactFormSchema.safeParse(values);
+    // "Autre" + précision libre ne sont jamais stockés comme deux champs
+    // distincts : la précision est fusionnée dans la valeur envoyée, pour
+    // que l'admin/l'email affichent directement une seule ligne lisible
+    // ("Autre — Salon de coiffure") sans colonne supplémentaire.
+    const payload = {
+      ...values,
+      websiteType:
+        values.websiteType === OTHER_VALUE && websiteTypeOther.trim()
+          ? `${OTHER_VALUE} — ${websiteTypeOther.trim()}`
+          : values.websiteType,
+      objective:
+        values.objective === OTHER_VALUE && objectiveOther.trim()
+          ? `${OTHER_VALUE} — ${objectiveOther.trim()}`
+          : values.objective,
+      templateInterest: templateInterest ?? NO_TEMPLATE_PREFERENCE,
+    };
+
+    const parsed = contactFormSchema.safeParse(payload);
     if (!parsed.success) {
       setFieldErrors(flattenContactFormErrors(parsed.error));
       return;
@@ -326,42 +362,107 @@ export default function Contact({
                         <FieldError message={fieldErrors.phone} />
                       </label>
 
-                      <label className="flex flex-col gap-1 text-sm text-mist">
-                        Offre souhaitée
-                        <CustomSelect
-                          value={values.offer ?? ""}
-                          onChange={(v) => updateField("offer", v)}
-                          placeholder="Sélectionner une offre"
-                          options={offerOptions}
-                        />
-                      </label>
+                      <GroupHeading>Votre projet</GroupHeading>
 
                       <label className="flex flex-col gap-1 text-sm text-mist">
-                        Budget indicatif
-                        <CustomSelect
-                          value={values.budget ?? ""}
-                          onChange={(v) => updateField("budget", v)}
-                          placeholder="Sélectionner une fourchette"
-                          options={BUDGET_OPTIONS}
-                        />
-                      </label>
-
-                      <label className="flex flex-col gap-1 text-sm text-mist sm:col-span-2">
-                        Type de site
+                        Type de projet
                         <CustomSelect
                           value={values.websiteType ?? ""}
                           onChange={(v) => updateField("websiteType", v)}
                           placeholder="Sélectionner un type"
-                          options={WEBSITE_TYPE_OPTIONS}
+                          options={PROJECT_TYPE_OPTIONS}
+                        />
+                        {values.websiteType === OTHER_VALUE && (
+                          <input
+                            type="text"
+                            placeholder="Précisez votre activité"
+                            value={websiteTypeOther}
+                            onChange={(e) => setWebsiteTypeOther(e.target.value)}
+                            className={`${inputClass} mt-2`}
+                          />
+                        )}
+                      </label>
+
+                      <label className="flex flex-col gap-1 text-sm text-mist">
+                        Quel est votre objectif principal ?
+                        <CustomSelect
+                          value={values.objective ?? ""}
+                          onChange={(v) => updateField("objective", v)}
+                          placeholder="Sélectionner un objectif"
+                          options={OBJECTIVE_OPTIONS}
+                        />
+                        {values.objective === OTHER_VALUE && (
+                          <input
+                            type="text"
+                            placeholder="Précisez votre objectif"
+                            value={objectiveOther}
+                            onChange={(e) => setObjectiveOther(e.target.value)}
+                            className={`${inputClass} mt-2`}
+                          />
+                        )}
+                      </label>
+
+                      <div className="flex flex-col gap-3 border-t border-line pt-6 sm:col-span-2">
+                        <MobileDisclosure label="Choisir les fonctionnalités souhaitées">
+                        <span className="text-sm text-mist">
+                          Quelles fonctionnalités souhaitez-vous ?
+                        </span>
+                        <ChipToggleGroup
+                          options={FEATURE_OPTIONS}
+                          selected={values.features}
+                          onToggle={toggleFeature}
+                          ariaLabel="Quelles fonctionnalités souhaitez-vous ?"
+                        />
+                        </MobileDisclosure>
+                      </div>
+
+                      <GroupHeading>Préparation</GroupHeading>
+
+                      <TemplateInspirationSelector
+                        selected={selectedTemplate}
+                        onSelect={selectTemplate}
+                        onClear={clearTemplateSelection}
+                      />
+
+                      <label className="flex flex-col gap-1 text-sm text-mist">
+                        Avez-vous déjà une identité visuelle ?
+                        <CustomSelect
+                          value={values.identityStatus ?? ""}
+                          onChange={(v) => updateField("identityStatus", v)}
+                          placeholder="Sélectionner une réponse"
+                          options={IDENTITY_OPTIONS}
                         />
                       </label>
 
+                      <label className="flex flex-col gap-1 text-sm text-mist">
+                        Avez-vous déjà vos contenus ?
+                        <CustomSelect
+                          value={values.contentStatus ?? ""}
+                          onChange={(v) => updateField("contentStatus", v)}
+                          placeholder="Sélectionner une réponse"
+                          options={CONTENT_OPTIONS}
+                        />
+                      </label>
+
+                      <GroupHeading>Cadre du projet</GroupHeading>
+
                       <label className="flex flex-col gap-1 text-sm text-mist sm:col-span-2">
+                        Quand souhaitez-vous lancer votre site ?
+                        <CustomSelect
+                          value={values.timeline ?? ""}
+                          onChange={(v) => updateField("timeline", v)}
+                          placeholder="Sélectionner un délai"
+                          options={TIMELINE_OPTIONS}
+                          className="sm:max-w-sm"
+                        />
+                      </label>
+
+                      <label className="flex flex-col gap-1 border-t border-line pt-6 text-sm text-mist sm:col-span-2">
                         Message
                         <textarea
                           name="message"
                           rows={4}
-                          placeholder="Parlez-nous de votre projet..."
+                          placeholder="Parlez-nous de votre projet, de votre activité ou de toute demande particulière..."
                           value={values.message}
                           onChange={(e) => updateField("message", e.target.value)}
                           className={`${inputClass} resize-none ${fieldErrors.message ? errorInputClass : ""}`}
@@ -369,7 +470,7 @@ export default function Contact({
                         <FieldError message={fieldErrors.message} />
                       </label>
 
-                      <div className="sm:col-span-2">
+                      <div className="border-t border-line pt-6 sm:col-span-2">
                         <label className="flex cursor-pointer items-start gap-3 text-sm text-mist">
                           <input
                             type="checkbox"

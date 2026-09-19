@@ -4,10 +4,29 @@ import { useState } from "react";
 import RevealOnScroll from "@/components/ui/RevealOnScroll";
 import SectionLabel from "@/components/ui/SectionLabel";
 import MagneticButton from "@/components/ui/MagneticButton";
-import { useProjectMatch } from "@/lib/project-match/context";
+import CustomSelect from "@/components/ui/CustomSelect";
 import type { OfferRow } from "@/lib/cms/types";
+import { useVisitorPreferences } from "@/components/providers/VisitorPreferencesProvider";
+import {
+  CURRENCIES,
+  CURRENCY_LABELS,
+  formatCurrency,
+  parseMadAmount,
+  type CurrencyCode,
+} from "@/lib/international";
+
+const CURRENCY_OPTIONS = CURRENCIES.map((code) => ({
+  value: code,
+  label: `${code} — ${CURRENCY_LABELS[code]}`,
+}));
 
 function OfferCard({ offer }: { offer: OfferRow }) {
+  const displayedPrice = offer.price.replace(/^\s*à\s+partir\s+de\s+/i, "");
+  const { currency, currencyRate, ratesStatus } = useVisitorPreferences();
+  const sourceAmount = parseMadAmount(offer.price);
+  const converted = currency !== "MAD" && currencyRate && sourceAmount
+    ? formatCurrency(sourceAmount * currencyRate, currency)
+    : null;
   return (
     <article
       className={`flex h-full flex-col border px-7 py-9 sm:px-9 sm:py-10 ${
@@ -26,9 +45,20 @@ function OfferCard({ offer }: { offer: OfferRow }) {
         {offer.name}
       </h3>
 
-      <div className="mt-5 flex items-baseline gap-2">
-        <span className="text-3xl font-medium text-paper sm:text-4xl">{offer.price}</span>
+      <div className="mt-5 flex flex-col items-start gap-1">
+        <span className="text-xs text-mist">À partir de</span>
+        <span className="text-3xl font-medium text-paper sm:text-4xl">{converted ?? displayedPrice}</span>
       </div>
+      {converted && (
+        <span className="mt-2 text-[11px] leading-relaxed text-mist-dim">
+          Conversion indicative · Référence {displayedPrice}
+        </span>
+      )}
+      {currency !== "MAD" && !converted && ratesStatus === "unavailable" && (
+        <span className="mt-2 text-[11px] leading-relaxed text-mist-dim">
+          Conversion indisponible · Prix affiché en MAD
+        </span>
+      )}
       {offer.price_note && (
         <span className="mt-1 font-display text-[10px] uppercase tracking-[0.25em] text-mist-dim">
           {offer.price_note}
@@ -62,21 +92,9 @@ function OfferCard({ offer }: { offer: OfferRow }) {
 export default function Offers({ offers }: { offers: OfferRow[] }) {
   const defaultIndex = Math.max(0, offers.findIndex((o) => o.featured));
   const [activeIndex, setActiveIndex] = useState(defaultIndex);
-  const { selection } = useProjectMatch();
-
-  // Le Project Matcher peut recommander une offre et vouloir l'afficher ici
-  // (lien "Voir l'offre en détail") : une seule source de vérité pour
-  // l'onglet actif, jamais un second état dupliqué côté Matcher. Ajusté
-  // pendant le rendu (pas un effet) — voir "Adjusting state when a prop
-  // changes" dans la doc React — pour éviter un rendu supplémentaire.
-  const [lastSelectionToken, setLastSelectionToken] = useState(selection?.token ?? 0);
-  if (selection && selection.token !== lastSelectionToken) {
-    setLastSelectionToken(selection.token);
-    const matchIndex = offers.findIndex((o) => o.id === selection.offerId);
-    if (matchIndex >= 0) setActiveIndex(matchIndex);
-  }
 
   const active = offers[activeIndex] ?? offers[0];
+  const { currency, setCurrency, ratesStatus } = useVisitorPreferences();
 
   return (
     <section
@@ -92,6 +110,25 @@ export default function Offers({ offers }: { offers: OfferRow[] }) {
           <h2 className="mt-8 max-w-2xl text-3xl font-medium tracking-tight text-paper sm:text-4xl lg:text-5xl">
             Trois façons de démarrer
           </h2>
+        </RevealOnScroll>
+
+        <RevealOnScroll delay={0.07}>
+          <div className="mt-7 flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-mist sm:justify-end">
+            <span>Devise d’affichage</span>
+            <div className="w-full max-w-64 sm:w-64">
+              <CustomSelect
+                value={currency}
+                onChange={(value) => setCurrency(value as CurrencyCode)}
+                options={CURRENCY_OPTIONS}
+                placeholder="Choisir une devise"
+                ariaLabel="Devise d’affichage"
+                className="min-h-11 text-sm"
+              />
+            </div>
+            {currency !== "MAD" && ratesStatus === "loading" && (
+              <span aria-live="polite" className="text-mist-dim">Conversion en cours…</span>
+            )}
+          </div>
         </RevealOnScroll>
 
         {/* Mobile/tablette (< lg) : un sélecteur compact au lieu de trois

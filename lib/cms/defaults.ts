@@ -161,8 +161,6 @@ export const SITE_CONTENT_DEFAULTS: SiteContentMap = {
     finalHeading: "Ready to build.",
     finalTagline: "Chaque projet commence par une structure claire.",
     ctaLabel: "Démarrer un projet",
-    matcherHeading: "Quelle offre correspond à votre projet ?",
-    matcherCta: "Trouver mon offre",
   },
 };
 

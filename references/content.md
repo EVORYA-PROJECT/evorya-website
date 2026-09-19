@@ -239,10 +239,17 @@ Champs :
 - Entreprise
 - Email
 - Téléphone
-- Offre souhaitée
-- Budget indicatif
-- Type de site
+- Type de projet (avec précision libre si "Autre")
+- Objectif principal (avec précision libre si "Autre")
+- Fonctionnalités souhaitées (sélection multiple)
+- Identité visuelle
+- Contenus
+- Délai souhaité
 - Message
+
+Le prospect ne choisit plus lui-même une offre : il répond à ce court
+questionnaire, et c'est Evorya qui recommande ensuite l'offre adaptée après
+analyse de la demande.
 
 CTA :
 

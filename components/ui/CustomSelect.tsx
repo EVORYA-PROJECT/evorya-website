@@ -13,6 +13,7 @@ type CustomSelectProps = {
   onChange: (value: string) => void;
   options: SelectOption[];
   placeholder: string;
+  ariaLabel?: string;
   className?: string;
 };
 
@@ -27,6 +28,7 @@ export default function CustomSelect({
   onChange,
   options,
   placeholder,
+  ariaLabel,
   className,
 }: CustomSelectProps) {
   const [open, setOpen] = useState(false);
@@ -131,6 +133,7 @@ export default function CustomSelect({
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-controls={listboxId}
+        aria-label={ariaLabel}
         aria-activedescendant={
           open && activeIndex >= 0 ? `${listboxId}-option-${activeIndex}` : undefined
         }

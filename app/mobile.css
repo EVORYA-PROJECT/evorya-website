@@ -1,0 +1,216 @@
+/* Phone-only composition. Tablet/desktop retain their existing utilities. */
+.mobile-rail-hint { display: none; }
+.mobile-disclosure,
+.mobile-disclosure-panel,
+.mobile-disclosure-panel > div { display: contents; }
+.mobile-disclosure > button { display: none; }
+
+@media (max-width: 639px) {
+  [data-mobile-page] { --mobile-space: 3rem; }
+  [data-mobile-page]:not([data-mobile-page="evorya"]):not([data-mobile-page="templates"]) { --mobile-space: 3.5rem; }
+  [data-mobile-page] [data-mobile-reveal] { opacity: 1 !important; clip-path: none !important; }
+  [data-mobile-page] [data-mobile-reveal]:not([data-mobile-motion="true"]) { transform: none !important; }
+  [data-mobile-page] :is(.py-28, .py-24, .py-20, .py-16) {
+    padding-block: var(--mobile-space);
+  }
+  [data-mobile-page] :is(.pt-16, .pt-20, .pt-24) { padding-top: var(--mobile-space); }
+  [data-mobile-page] :is(.pb-16, .pb-20, .pb-24) { padding-bottom: var(--mobile-space); }
+  [data-mobile-page] :is(.mt-20, .mt-16, .mt-14, .mt-12) { margin-top: 1.75rem; }
+  [data-mobile-page] :is(.gap-16, .gap-14, .gap-12, .gap-10) { gap: 1.75rem; }
+  [data-mobile-page] :is(button, a, summary, label) { -webkit-tap-highlight-color: rgb(128 128 128 / 16%); }
+  [data-mobile-page] button { min-height: 44px; }
+  [data-mobile-page] .overflow-x-auto { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, currentColor 35%, transparent) transparent; }
+  [data-mobile-page] :is(.mobile-rail, .overflow-x-auto)::-webkit-scrollbar { height: 3px; }
+  [data-mobile-page] :is(.mobile-rail, .overflow-x-auto)::-webkit-scrollbar-track { background: transparent; }
+  [data-mobile-page] :is(.mobile-rail, .overflow-x-auto)::-webkit-scrollbar-thumb { background: color-mix(in srgb, currentColor 35%, transparent); border: 0; }
+  [data-mobile-page] :is(button, a):active { filter: brightness(.85); }
+  [data-mobile-page] :is(input:not([type="radio"]):not([type="checkbox"]), textarea, select) {
+    min-width: 0;
+    font-size: 16px;
+  }
+  [data-mobile-page] :is(section[id], h2[id]) { scroll-margin-top: 8rem; }
+  .mobile-demo-bar :is(a, button) { display: inline-flex; min-height: 44px; min-width: 44px; align-items: center; justify-content: center; }
+  .mobile-demo-bar button { border-block: 0; }
+
+  /* Peek at the next card; native scroll keeps diagonal/vertical swipes free. */
+  [data-mobile-page] .mobile-rail {
+    position: relative;
+    display: grid;
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: 88%;
+    grid-template-rows: auto;
+    gap: 14px;
+    align-items: start;
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 2px;
+    padding: 3px 2px 12px;
+    scrollbar-width: thin;
+    scrollbar-color: currentColor transparent;
+  }
+  [data-mobile-page] .mobile-rail > * {
+    min-width: 0;
+    grid-column: auto;
+    grid-row: auto;
+    margin-top: 0;
+    scroll-snap-align: start;
+  }
+  .mobile-rail-hint {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    font-size: 11px;
+    letter-spacing: .08em;
+    opacity: .7;
+  }
+  .mobile-disclosure { display: block; }
+  .mobile-disclosure > button {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    border-top: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+    margin-top: 14px;
+    padding-block: 10px;
+    text-align: left;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .mobile-disclosure-panel {
+    display: grid;
+    grid-template-rows: 0fr;
+    visibility: hidden;
+    transition: grid-template-rows 240ms ease, visibility 240ms;
+  }
+  .mobile-disclosure-panel > div { display: block; overflow: hidden; min-height: 0; }
+  .mobile-disclosure[data-open="true"] > .mobile-disclosure-panel {
+    grid-template-rows: 1fr;
+    visibility: visible;
+  }
+
+  /* Evorya: compact editorial rows and a visual, two-column radio picker. */
+  [data-mobile-page="evorya"] #accueil { min-height: min(720px, 90svh); }
+  [data-mobile-page="evorya"] #pourquoi-evorya .group {
+    grid-template-columns: 28px minmax(0, 1fr);
+    gap: 8px 12px;
+    padding-block: 20px;
+  }
+  [data-mobile-page="evorya"] #pourquoi-evorya .group > div:first-child { display: contents; }
+  [data-mobile-page="evorya"] #pourquoi-evorya .group > div:first-child > span { grid-column: 1; }
+  [data-mobile-page="evorya"] #pourquoi-evorya .group > div:first-child > h3 { grid-column: 2; min-width: 0; }
+  [data-mobile-page="evorya"] #pourquoi-evorya .group > p {
+    grid-column: 2;
+    margin: 0;
+    min-width: 0;
+  }
+  [data-mobile-page="evorya"] #offres article { padding: 22px; }
+  [data-mobile-page="evorya"] #offres article :is(.mt-8, .mt-10) { margin-top: 20px; }
+  [data-mobile-page="evorya"] #offres article .space-y-3 > :not(:last-child) { margin-bottom: 8px; }
+  [data-mobile-page="evorya"] #contact > div > .grid { gap: 28px; }
+  [data-mobile-page="evorya"] #contact .min-h-\[520px\] { padding: 18px; min-height: 0; }
+  [data-mobile-page="evorya"] #contact form { row-gap: 20px; }
+  [data-mobile-page="evorya"] #contact form > .mobile-disclosure { min-width: 0; }
+  [data-mobile-page="evorya"] #contact .mobile-disclosure-panel > div > div { margin-top: 12px; }
+  .mobile-inspiration > div { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .mobile-inspiration label:not(:last-child) { grid-template-columns: 1fr; min-height: 0; }
+  .mobile-inspiration label > span:first-of-type { min-height: 0; height: 68px; }
+  .mobile-inspiration label > span:nth-of-type(2) { padding: 10px 8px; justify-content: flex-start; }
+  .mobile-inspiration label > span:nth-of-type(2) > span:first-child { font-size: 9px; letter-spacing: .035em; color: #a9acb2; }
+  .mobile-inspiration label > span:nth-of-type(2) > span:last-child { font-size: 13px; }
+  .mobile-inspiration label > span:last-child { background: #050505; }
+  .mobile-inspiration label:has(input:checked) > span:last-child { background: white; color: #050505; }
+  .mobile-inspiration label:focus-within { outline: 2px solid white; outline-offset: 2px; }
+  .mobile-inspiration label:last-child { grid-column: 1 / -1; padding: 12px; }
+  .mobile-inspiration label:last-child > span:first-of-type { height: auto; }
+  .mobile-inspiration img { filter: none; opacity: .85; }
+
+  /* Index: still a vertical index, with wide photographs and smaller numbers. */
+  [data-mobile-page="templates"] > section:first-of-type { padding-top: 112px; padding-bottom: 40px; }
+  [data-mobile-page="templates"] h1 { font-size: 30px; }
+  .mobile-template-index { grid-template-columns: 24px 1fr; gap: 14px; padding-block: 24px; }
+  .mobile-template-index > span { font-size: 22px; padding-top: 6px; }
+  .mobile-template-index > :last-child { grid-column: 1 / -1; aspect-ratio: 16 / 9; }
+  .mobile-template-index h3 { font-size: 21px; }
+  .mobile-template-index button { min-height: 44px; color: #b8bbc0; }
+  .mobile-template-index button[aria-pressed="true"] { color: #050505; }
+  .mobile-template-index p { margin-top: 8px; line-height: 1.5; }
+
+  /* KRUSH: keep the burger composition and annotations in normal flow. */
+  [data-mobile-page="restaurant"] #best .aspect-\[4\/5\] { aspect-ratio: 6 / 7; }
+  [data-mobile-page="restaurant"] #haut .aspect-\[4\/5\] { aspect-ratio: 6 / 7; }
+  [data-mobile-page="restaurant"] #haut .grid-cols-1 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  [data-mobile-page="restaurant"] #haut .grid-cols-1 a { padding-inline: 10px; font-size: 12px; }
+  [data-mobile-page="restaurant"] #crispy .lg\:hidden .aspect-\[3\/4\] { aspect-ratio: 1; }
+  [data-mobile-page="restaurant"] #signature > .lg\:hidden { padding-block: 56px; }
+  [data-mobile-page="restaurant"] .mobile-food-wall > * > div { aspect-ratio: 4 / 5 !important; }
+  [data-mobile-page="restaurant"] .mobile-food-wall :is(.opacity-0, .translate-y-2) { opacity: 1; transform: none; }
+  [data-mobile-page="restaurant"] .mobile-fresh { display: grid; gap: 24px; }
+  [data-mobile-page="restaurant"] .mobile-fresh > li { gap: 16px; margin: 0; }
+  [data-mobile-page="restaurant"] .mobile-fresh > li > :first-child { grid-column: span 5; }
+  [data-mobile-page="restaurant"] .mobile-fresh > li > :last-child { grid-column: span 7; }
+  [data-mobile-page="restaurant"] .mobile-fresh h3 { font-size: 30px; margin-top: 0; }
+  [data-mobile-page="restaurant"] .mobile-fresh p { font-size: 14px; line-height: 1.5; margin-top: 10px; }
+  [data-mobile-page="restaurant"] .mobile-fresh .aspect-\[16\/10\] { aspect-ratio: 3 / 4; }
+
+  /* Vortex: terse spec rows, full-width job photos; no SVG transform override. */
+  [data-mobile-page="automobile"] #prestations .vx-row > .relative { grid-template-columns: 26px 1fr; gap: 8px 12px; padding-block: 20px; }
+  [data-mobile-page="automobile"] #prestations .vx-row > .relative > :is(p, div:last-child) { grid-column: 2; }
+  [data-mobile-page="automobile"] #prestations [role="group"] { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 8px; }
+  [data-mobile-page="automobile"] #prestations [role="group"] button { flex-shrink: 0; }
+  [data-mobile-page="automobile"] #matiere > div:last-child > .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  [data-mobile-page="automobile"] #matiere > div:last-child > .grid > figure:first-child { grid-column: 1 / -1; }
+  [data-mobile-page="automobile"] #matiere figure figcaption { padding: 12px; }
+  [data-mobile-page="automobile"] #matiere figure h3 { font-size: 17px; }
+
+  /* Riad: the room and photo collections share the native rail. */
+  [data-mobile-page="hotel"] #galerie .mobile-rail figure > div { height: 330px; }
+  [data-mobile-page="hotel"] #chambres article > div:first-child { height: 230px; }
+  [data-mobile-page="hotel"] #chambres article > div:last-child { padding: 24px; }
+  [data-mobile-page="hotel"] #chambres .mobile-disclosure { color: #22302c; }
+  [data-mobile-page="hotel"] #lieu dl { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  [data-mobile-page="hotel"] section[aria-labelledby="heure-bleue-titre"] { height: 590px; min-height: 0; }
+
+  /* Atrium: keep filter wrapping and the 1024px fix untouched. */
+  [data-mobile-page="immobilier"] #biens .mobile-rail { align-items: stretch; }
+  [data-mobile-page="immobilier"] .mobile-disclosure { color: #3a444f; }
+  [data-mobile-page="immobilier"] #biens article .h-52 { height: 225px; }
+  [data-mobile-page="immobilier"] #galerie .mobile-gallery-pair { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  [data-mobile-page="immobilier"] #galerie .mobile-gallery-pair .h-\[300px\] { height: 250px; }
+  [data-mobile-page="immobilier"] #galerie .mobile-gallery-trio { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  [data-mobile-page="immobilier"] #galerie .mobile-gallery-trio > :last-child { grid-column: 1 / -1; }
+  [data-mobile-page="immobilier"] #galerie .mobile-gallery-trio .h-\[220px\] { height: 195px; }
+  [data-mobile-page="immobilier"] #galerie figcaption { font-size: 10px; letter-spacing: .06em; }
+  [data-mobile-page="immobilier"] #carnet .mobile-disclosure-panel .mt-6 { margin-top: 16px; }
+
+  /* Soline: photo stories, a shorter protocol, compact appointment details. */
+  [data-mobile-page="beaute"] .mobile-signatures article { min-height: 450px; }
+  [data-mobile-page="beaute"] .mobile-signatures article > div:last-child { padding: 24px; }
+  [data-mobile-page="beaute"] .mobile-signatures > div:last-child { padding-block: 24px; }
+  [data-mobile-page="beaute"] .mobile-atmospheres { grid-auto-rows: 350px; }
+  [data-mobile-page="beaute"] .mobile-atmospheres > * { height: 350px; }
+  [data-mobile-page="beaute"] #institut .aspect-\[4\/5\] { aspect-ratio: 4 / 3; }
+  [data-mobile-page="beaute"] #institut .aspect-\[3\/4\] { aspect-ratio: 5 / 6; }
+  [data-mobile-page="beaute"] #institut .relative.-mt-24 { width: 48%; margin-top: -64px; }
+  [data-mobile-page="beaute"] .mobile-protocol li { gap: 8px 12px; padding-block: 18px; grid-template-columns: 28px 1fr; }
+  [data-mobile-page="beaute"] #infos dl > div { padding-block: 14px; }
+  [data-mobile-page="beaute"] #equipe .aspect-\[4\/5\] { aspect-ratio: 4 / 3; }
+  [data-mobile-page="beaute"] #equipe article { padding-block: 18px; gap: 8px 12px; }
+  [data-mobile-page="beaute"] #soins [role="tabpanel"] .py-7 { padding-block: 18px; }
+  [data-mobile-page="beaute"] .min-h-\[34rem\] { min-height: 380px; }
+
+  /* Verdon: concise dossiers with sober disclosure, preserving every entry. */
+  [data-mobile-page="cabinet"] #expertise li.group { padding-block: 20px; padding-right: 0; }
+  [data-mobile-page="cabinet"] #missions figure > div { aspect-ratio: 16 / 9; }
+  [data-mobile-page="cabinet"] #missions article + article { margin-top: 32px; }
+  [data-mobile-page="cabinet"] #cabinet .aspect-\[4\/5\] { aspect-ratio: 4 / 3; }
+  [data-mobile-page="cabinet"] #methode > div > ul { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+}
+
+@media (max-width: 639px) and (prefers-reduced-motion: reduce) {
+  .mobile-disclosure-panel { transition: none; }
+}

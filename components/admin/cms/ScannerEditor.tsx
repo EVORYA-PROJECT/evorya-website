@@ -98,22 +98,6 @@ export default function ScannerEditor({
           className={fieldInputClass}
         />
       </label>
-      <label className={fieldLabelClass}>
-        Titre de transition vers le Project Matcher
-        <input
-          value={editor.value.matcherHeading}
-          onChange={(e) => editor.update({ matcherHeading: e.target.value })}
-          className={fieldInputClass}
-        />
-      </label>
-      <label className={fieldLabelClass}>
-        Libellé du CTA du Project Matcher
-        <input
-          value={editor.value.matcherCta}
-          onChange={(e) => editor.update({ matcherCta: e.target.value })}
-          className={fieldInputClass}
-        />
-      </label>
     </SectionEditorShell>
   );
 }

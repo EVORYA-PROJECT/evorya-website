@@ -43,14 +43,13 @@ function buildGroups(national: string): string {
 }
 
 export function formatNationalDigits(national: string, dial: string): string {
-  const groups = buildGroups(national);
-  return groups ? `+${dial} ${groups}` : "";
+  return national ? `+${dial}${national}` : "";
 }
 
 export type PhoneFieldFormatResult = {
   /** Uniquement la partie nationale groupée — à afficher dans le champ. */
   display: string;
-  /** "+<indicatif> <partie nationale>" — valeur canonique à stocker/envoyer. */
+  /** "+<indicatif><partie nationale>" — valeur E.164 à stocker/envoyer. */
   full: string;
   /** Position du curseur, relative à `display`. */
   caret: number;

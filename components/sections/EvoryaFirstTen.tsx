@@ -75,7 +75,7 @@ export default function EvoryaFirstTen({ content }: { content: First10Content })
 
       <div ref={contentRef} className="relative mx-auto max-w-[1440px]">
         <RevealOnScroll>
-          <SectionLabel index="06" label="Evorya First 10" />
+          <SectionLabel index="07" label="Evorya First 10" />
         </RevealOnScroll>
 
         {/* Mobile/tablette (< lg) : hiérarchie compacte, information

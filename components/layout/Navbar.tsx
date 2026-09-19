@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { NAV_LINKS, PRIMARY_CTA_LABEL } from "@/lib/config";
 import MagneticButton from "@/components/ui/MagneticButton";
 import MobileMenu from "@/components/layout/MobileMenu";
@@ -29,8 +30,8 @@ export default function Navbar() {
       }`}
     >
       <div className="mx-auto flex h-[72px] max-w-[1440px] items-center justify-between px-6 sm:px-8 lg:h-20 lg:px-12">
-        <a
-          href="#accueil"
+        <Link
+          href="/#accueil"
           className="relative flex items-center gap-3 py-1"
           aria-label="Evorya Project — retour à l'accueil"
         >
@@ -50,25 +51,25 @@ export default function Navbar() {
               className="object-cover"
             />
           </span>
-        </a>
+        </Link>
 
         <nav className="hidden items-center gap-10 lg:flex" aria-label="Navigation principale">
           {NAV_LINKS.map((link) => (
-            <a
+            <Link
               key={link.href}
               href={link.href}
               className="group relative font-display text-xs uppercase tracking-[0.25em] text-paper-dim/80 transition-colors hover:text-paper"
             >
               {link.label}
               <span className="absolute -bottom-2 left-0 h-px w-0 bg-paper transition-all duration-300 group-hover:w-full" />
-            </a>
+            </Link>
           ))}
         </nav>
 
         <div className="hidden lg:block">
           <MagneticButton
             as="a"
-            href="#contact"
+            href="/#contact"
             className="inline-flex items-center border border-line-strong px-6 py-3 font-display text-xs uppercase tracking-[0.25em] text-paper transition-colors hover:border-paper"
           >
             {PRIMARY_CTA_LABEL}

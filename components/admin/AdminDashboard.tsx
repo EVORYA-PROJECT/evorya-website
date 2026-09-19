@@ -187,7 +187,7 @@ export default function AdminDashboard({
                     <th className="px-4 py-3 font-normal">Nom</th>
                     <th className="px-4 py-3 font-normal">Entreprise</th>
                     <th className="px-4 py-3 font-normal">Email</th>
-                    <th className="px-4 py-3 font-normal">Offre</th>
+                    <th className="px-4 py-3 font-normal">Type</th>
                     <th className="px-4 py-3 font-normal">Date</th>
                     <th className="px-4 py-3 font-normal">Statut</th>
                   </tr>
@@ -202,7 +202,7 @@ export default function AdminDashboard({
                       <td className="px-4 py-4 text-paper">{r.name}</td>
                       <td className="px-4 py-4">{r.company || "—"}</td>
                       <td className="px-4 py-4">{r.email}</td>
-                      <td className="px-4 py-4">{r.offer || "—"}</td>
+                      <td className="px-4 py-4">{r.website_type || "—"}</td>
                       <td className="px-4 py-4">{dateFormatter.format(new Date(r.created_at))}</td>
                       <td className="px-4 py-4">
                         <StatusBadge status={r.status} />

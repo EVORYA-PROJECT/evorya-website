@@ -99,8 +99,6 @@ export type ScannerContent = {
   finalHeading: string;
   finalTagline: string;
   ctaLabel: string;
-  matcherHeading: string;
-  matcherCta: string;
 };
 
 export type First10Status = "open" | "closed";

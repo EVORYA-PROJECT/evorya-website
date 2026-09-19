@@ -81,6 +81,15 @@ export default function RequestDetail({
         </div>
 
         <dl className="mt-8 grid grid-cols-1 gap-6 border-t border-line pt-6 sm:grid-cols-2">
+          <div className="border border-line bg-paper/[0.03] p-4 sm:col-span-2">
+            <dt className="font-display text-[11px] uppercase tracking-[0.25em] text-mist-dim">
+              Inspiration / direction
+            </dt>
+            <dd className="mt-2 text-sm text-paper">
+              {request.template_interest || "Non renseignée (ancienne demande)"}
+            </dd>
+          </div>
+
           <div>
             <dt className="font-display text-[11px] uppercase tracking-[0.25em] text-mist-dim">Email</dt>
             <dd className="mt-2">
@@ -99,19 +108,54 @@ export default function RequestDetail({
           </div>
 
           <div>
-            <dt className="font-display text-[11px] uppercase tracking-[0.25em] text-mist-dim">Offre</dt>
-            <dd className="mt-2 text-sm text-paper-dim">{request.offer || "—"}</dd>
-          </div>
-
-          <div>
-            <dt className="font-display text-[11px] uppercase tracking-[0.25em] text-mist-dim">Budget</dt>
-            <dd className="mt-2 text-sm text-paper-dim">{request.budget || "—"}</dd>
-          </div>
-
-          <div>
-            <dt className="font-display text-[11px] uppercase tracking-[0.25em] text-mist-dim">Type de site</dt>
+            <dt className="font-display text-[11px] uppercase tracking-[0.25em] text-mist-dim">Type</dt>
             <dd className="mt-2 text-sm text-paper-dim">{request.website_type || "—"}</dd>
           </div>
+
+          <div>
+            <dt className="font-display text-[11px] uppercase tracking-[0.25em] text-mist-dim">Objectif</dt>
+            <dd className="mt-2 text-sm text-paper-dim">{request.objective || "—"}</dd>
+          </div>
+
+          <div>
+            <dt className="font-display text-[11px] uppercase tracking-[0.25em] text-mist-dim">Identité</dt>
+            <dd className="mt-2 text-sm text-paper-dim">{request.identity_status || "—"}</dd>
+          </div>
+
+          <div>
+            <dt className="font-display text-[11px] uppercase tracking-[0.25em] text-mist-dim">Contenus</dt>
+            <dd className="mt-2 text-sm text-paper-dim">{request.content_status || "—"}</dd>
+          </div>
+
+          <div>
+            <dt className="font-display text-[11px] uppercase tracking-[0.25em] text-mist-dim">Délai</dt>
+            <dd className="mt-2 text-sm text-paper-dim">{request.timeline || "—"}</dd>
+          </div>
+
+          {/* Historique uniquement : le formulaire ne demande plus de budget
+              au prospect. Les demandes envoyées avant ce changement peuvent
+              encore en porter un — voir types/database.ts. */}
+          {request.budget && (
+            <div>
+              <dt className="font-display text-[11px] uppercase tracking-[0.25em] text-mist-dim">
+                Budget (ancienne demande)
+              </dt>
+              <dd className="mt-2 text-sm text-paper-dim">{request.budget}</dd>
+            </div>
+          )}
+
+          {/* Historique uniquement : les demandes envoyées avant le mini-brief
+              pouvaient contenir une offre choisie par le prospect. Les
+              nouvelles demandes ne renseignent plus jamais ce champ — voir
+              types/database.ts. */}
+          {request.offer && (
+            <div>
+              <dt className="font-display text-[11px] uppercase tracking-[0.25em] text-mist-dim">
+                Offre (ancienne demande)
+              </dt>
+              <dd className="mt-2 text-sm text-paper-dim">{request.offer}</dd>
+            </div>
+          )}
 
           <div>
             <dt className="font-display text-[11px] uppercase tracking-[0.25em] text-mist-dim">
@@ -122,6 +166,24 @@ export default function RequestDetail({
             </dd>
           </div>
         </dl>
+
+        {request.features.length > 0 && (
+          <div className="mt-8 border-t border-line pt-6">
+            <dt className="font-display text-[11px] uppercase tracking-[0.25em] text-mist-dim">
+              Fonctionnalités
+            </dt>
+            <dd className="mt-3 flex flex-wrap gap-2">
+              {request.features.map((feature) => (
+                <span
+                  key={feature}
+                  className="border border-line px-3 py-1.5 text-sm text-paper-dim"
+                >
+                  {feature}
+                </span>
+              ))}
+            </dd>
+          </div>
+        )}
 
         <div className="mt-8 border-t border-line pt-6">
           <dt className="font-display text-[11px] uppercase tracking-[0.25em] text-mist-dim">Message</dt>

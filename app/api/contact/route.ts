@@ -103,9 +103,13 @@ export async function POST(request: NextRequest) {
     company: values.company || null,
     email: values.email,
     phone: values.phone || null,
-    offer: values.offer || null,
-    budget: values.budget || null,
     website_type: values.websiteType || null,
+    objective: values.objective || null,
+    features: values.features ?? [],
+    identity_status: values.identityStatus || null,
+    content_status: values.contentStatus || null,
+    timeline: values.timeline || null,
+    template_interest: values.templateInterest || null,
     message: values.message,
   };
 

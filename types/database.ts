@@ -21,9 +21,25 @@ export type ContactRequest = {
   company: string | null;
   email: string;
   phone: string | null;
+  // Historique uniquement : les demandes créées avant le mini-brief pouvaient
+  // porter une offre choisie par le prospect. Les nouvelles demandes
+  // n'écrivent plus jamais cette colonne (c'est Evorya qui recommande
+  // l'offre après analyse) — voir lib/data/contact-options.ts.
   offer: string | null;
+  // Historique uniquement : le formulaire ne demande plus de budget au
+  // prospect. Les demandes envoyées avant ce changement peuvent encore en
+  // porter un, affiché tel quel dans l'admin (voir RequestDetail.tsx).
   budget: string | null;
   website_type: string | null;
+  objective: string | null;
+  features: string[];
+  identity_status: string | null;
+  content_status: string | null;
+  timeline: string | null;
+  // Direction choisie dans le formulaire ou présélectionnée depuis une démo.
+  // Nullable pour les anciennes demandes. Nécessite la migration SQL
+  // "template_interest" (supabase/migration_template_interest.sql).
+  template_interest: string | null;
   message: string;
   // Nécessite la migration SQL "terms_accepted" (voir instructions de
   // configuration). Optionnel côté insertion tant qu'elle n'a pas été exécutée.
@@ -33,10 +49,12 @@ export type ContactRequest = {
 
 export type ContactRequestInsert = Omit<
   ContactRequest,
-  "id" | "created_at" | "status" | "terms_accepted"
+  "id" | "created_at" | "status" | "terms_accepted" | "offer" | "budget"
 > & {
   status?: RequestStatus;
   terms_accepted?: boolean;
+  offer?: string | null;
+  budget?: string | null;
 };
 
 // CMS — contenu textuel administrable (voir lib/cms/types.ts pour la forme

@@ -5,21 +5,14 @@ import { useInView } from "motion/react";
 import RevealOnScroll from "@/components/ui/RevealOnScroll";
 import SectionLabel from "@/components/ui/SectionLabel";
 import MagneticButton from "@/components/ui/MagneticButton";
-import ProjectMatcher from "@/components/sections/ProjectMatcher";
-import type { OfferRow, ScannerContent } from "@/lib/cms/types";
+import type { ScannerContent } from "@/lib/cms/types";
 
 // Mise en scène de la méthode Evorya — pas une analyse réelle du navigateur
 // ou du projet du visiteur (voir CLAUDE.md / consignes de contenu : aucune
 // fausse promesse "temps réel", "IA" ou "sécurité").
 const STEP_INTERVAL_MS = 380;
 
-export default function ProjectScanner({
-  content,
-  offers,
-}: {
-  content: ScannerContent;
-  offers: OfferRow[];
-}) {
+export default function ProjectScanner({ content }: { content: ScannerContent }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const inView = useInView(containerRef, { once: true, margin: "-15% 0px" });
   const [activeCount, setActiveCount] = useState(0);
@@ -135,12 +128,6 @@ export default function ProjectScanner({
             </div>
           </RevealOnScroll>
         </div>
-
-        {/* Transition vers le Project Matcher : volontairement séparée et
-            déclenchée par l'utilisateur, jamais affichée d'office. */}
-        <RevealOnScroll delay={0.1} className="mt-10 lg:mt-12">
-          <ProjectMatcher offers={offers} heading={content.matcherHeading} ctaLabel={content.matcherCta} />
-        </RevealOnScroll>
       </div>
     </section>
   );

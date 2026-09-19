@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
+import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
 import { NAV_LINKS, PRIMARY_CTA_LABEL } from "@/lib/config";
 
@@ -141,7 +142,7 @@ export default function MobileMenu({ open, onClose, triggerRef }: MobileMenuProp
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
-          className="fixed inset-0 z-40 flex h-dvh flex-col bg-ink lg:hidden"
+          className="fixed inset-0 z-40 flex h-dvh flex-col overflow-y-auto bg-ink lg:hidden"
         >
           <nav
             className="flex flex-1 flex-col justify-center gap-1 px-6 pt-[72px] sm:px-8"
@@ -167,13 +168,13 @@ export default function MobileMenu({ open, onClose, triggerRef }: MobileMenuProp
             ))}
           </nav>
           <div className="px-6 pb-[max(2.5rem,env(safe-area-inset-bottom))] sm:px-8">
-            <a
-              href="#contact"
+            <Link
+              href="/#contact"
               onClick={handleLinkClick}
               className="flex h-14 w-full items-center justify-center bg-paper font-display text-xs uppercase tracking-[0.25em] text-ink"
             >
               {PRIMARY_CTA_LABEL}
-            </a>
+            </Link>
           </div>
         </motion.div>
       )}

@@ -110,6 +110,10 @@ body {
 @media (max-width: 768px) {
   [data-reveal] {
     opacity: 1 !important;
+    clip-path: none !important;
+  }
+
+  [data-reveal]:not([data-mobile-motion="true"]) {
     transform: none !important;
   }
 }
