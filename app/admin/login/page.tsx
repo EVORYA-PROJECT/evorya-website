@@ -60,13 +60,15 @@ export default function AdminLoginPage() {
       });
 
       if (resetErr) {
+        console.error("[admin/login] Échec de la demande de récupération :", resetErr);
         setResetError("Impossible d'envoyer le lien pour le moment. Réessayez plus tard.");
         setResetStatus("error");
         return;
       }
 
       setResetStatus("sent");
-    } catch {
+    } catch (resetException) {
+      console.error("[admin/login] Impossible d'initialiser la récupération :", resetException);
       setResetError("Impossible d'envoyer le lien pour le moment. Réessayez plus tard.");
       setResetStatus("error");
     }

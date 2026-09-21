@@ -13,7 +13,7 @@ type Stage = "checking" | "invalid" | "ready" | "success";
  * jamais de "une session existe" (un propriétaire déjà connecté sur cet
  * appareil ne doit pas pouvoir l'ouvrir directement pour changer son mot de
  * passe sans passer par l'email). On exige un signal explicite de recovery :
- * soit un `code` échangé avec succès, soit l'événement PASSWORD_RECOVERY.
+ * l'événement PASSWORD_RECOVERY émis après l'échange PKCE automatique du SDK.
  */
 export default function ResetPasswordPage() {
   const router = useRouter();
@@ -27,39 +27,45 @@ export default function ResetPasswordPage() {
   useEffect(() => {
     let cancelled = false;
     let recoveryDetected = false;
-    const supabase = createSupabaseBrowserClient();
-
-    const { data: authListener } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY") {
-        recoveryDetected = true;
-        if (!cancelled) setStage("ready");
-      }
-    });
+    let unsubscribe: (() => void) | undefined;
 
     async function verify() {
-      const url = new URL(window.location.href);
-      const code = url.searchParams.get("code");
-      const hasRecoveryHash = window.location.hash.includes("type=recovery");
-
-      if (code) {
-        const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
-        if (!exchangeError) {
-          recoveryDetected = true;
-          if (!cancelled) setStage("ready");
+      try {
+        // Le client @supabase/ssr utilise PKCE. Sans code dans l'URL, cette
+        // visite ne provient pas d'un lien de récupération actuel valide.
+        if (!new URL(window.location.href).searchParams.has("code")) {
+          if (!cancelled) setStage("invalid");
           return;
         }
-      }
 
-      if (hasRecoveryHash) {
-        // Le SDK détecte et traite le hash automatiquement
-        // (detectSessionInUrl) et déclenche PASSWORD_RECOVERY via
-        // onAuthStateChange ci-dessus : on laisse un court délai pour cela
-        // avant de conclure à un lien invalide.
-        await new Promise((resolve) => setTimeout(resolve, 800));
-      }
+        const supabase = createSupabaseBrowserClient();
+        const { data: authListener } = supabase.auth.onAuthStateChange((event) => {
+          if (event !== "PASSWORD_RECOVERY") return;
+          recoveryDetected = true;
+          if (!cancelled) setStage("ready");
+        });
+        unsubscribe = () => authListener.subscription.unsubscribe();
 
-      if (!cancelled && !recoveryDetected) {
-        setStage("invalid");
+        // createBrowserClient démarre automatiquement detectSessionInUrl.
+        // initialize() rejoint cette initialisation existante sans rééchanger
+        // le code. Le tick suivant laisse PASSWORD_RECOVERY être distribué.
+        const { error: initializationError } = await supabase.auth.initialize();
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        if (initializationError) {
+          console.error(
+            "[admin/reset-password] Échec de l'initialisation PKCE :",
+            initializationError,
+          );
+        }
+
+        if (!cancelled && !recoveryDetected) setStage("invalid");
+      } catch (initializationException) {
+        console.error(
+          "[admin/reset-password] Impossible d'initialiser la récupération :",
+          initializationException,
+        );
+        if (!cancelled) setStage("invalid");
       }
     }
 
@@ -67,7 +73,7 @@ export default function ResetPasswordPage() {
 
     return () => {
       cancelled = true;
-      authListener.subscription.unsubscribe();
+      unsubscribe?.();
     };
   }, []);
 
@@ -89,6 +95,7 @@ export default function ResetPasswordPage() {
       const supabase = createSupabaseBrowserClient();
       const { error: updateError } = await supabase.auth.updateUser({ password });
       if (updateError) {
+        console.error("[admin/reset-password] Échec de la mise à jour du mot de passe :", updateError);
         setError("Impossible de modifier le mot de passe. Réessayez.");
         setSaving(false);
         return;
@@ -97,7 +104,11 @@ export default function ResetPasswordPage() {
       setTimeout(() => {
         router.replace("/admin/login");
       }, 2500);
-    } catch {
+    } catch (updateException) {
+      console.error(
+        "[admin/reset-password] Impossible de mettre à jour le mot de passe :",
+        updateException,
+      );
       setError("Impossible de modifier le mot de passe. Réessayez.");
       setSaving(false);
     }

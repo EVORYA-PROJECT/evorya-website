@@ -14,8 +14,15 @@ export default function ParametresPanel({ email }: { email: string }) {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/admin/reset-password`,
       });
+      if (error) {
+        console.error("[admin/parametres] Échec de la demande de récupération :", error);
+      }
       setStatus(error ? "error" : "sent");
-    } catch {
+    } catch (resetException) {
+      console.error(
+        "[admin/parametres] Impossible d'initialiser la récupération :",
+        resetException,
+      );
       setStatus("error");
     }
   }
