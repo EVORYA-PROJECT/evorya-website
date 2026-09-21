@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useInsertionEffect, useRef } from "react";
 import Link from "next/link";
 import { useTemplateSelection } from "@/lib/templates/selection-context";
 import type { TemplateSlug } from "@/lib/templates/types";
@@ -20,6 +21,27 @@ export const DEMO_BAR_HEIGHT = "calc(2.75rem + env(safe-area-inset-top))";
 export default function DemoBar({ slug }: { slug: TemplateSlug }) {
   const { selected, toggle } = useTemplateSelection();
   const isSelected = selected === slug;
+  const previousScrollBehavior = useRef<string | null>(null);
+
+  useInsertionEffect(() => {
+    const html = document.documentElement;
+    previousScrollBehavior.current = html.style.scrollBehavior;
+    html.style.scrollBehavior = "auto";
+    html.getClientRects();
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+
+    return () => {
+      if (previousScrollBehavior.current === null) return;
+      html.style.scrollBehavior = previousScrollBehavior.current;
+      previousScrollBehavior.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (previousScrollBehavior.current === null) return;
+    document.documentElement.style.scrollBehavior = previousScrollBehavior.current;
+    previousScrollBehavior.current = null;
+  }, []);
 
   return (
     <div
